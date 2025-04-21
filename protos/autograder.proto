@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package Autograder;
+
+service Autograder {
+    rpc Submit(SubmissionRequest) returns (SubmissionResponse) {}
+}
+
+message SubmissionRequest {
+    int32 task_id = 1;
+    string source_code = 2;
+}
+
+message SubmissionResponse {
+    Status status = 1;
+    string output = 2;
+}
+
+/* Response status */
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
+}
