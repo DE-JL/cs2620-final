@@ -1,2 +1,6 @@
 .idea/
 .venv/
+
+# Protocol buffer generated code
+*_pb2.*
+*_pb2_grpc.*
