@@ -6,6 +6,7 @@ network:
 load_balancer:
   host: localhost
   port: "8090"
+  mock: true
 machines_local:
   1: 
     host: localhost
