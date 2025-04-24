@@ -1,6 +1,4 @@
 import sys
-import asyncio
-from grpc import aio
 import argparse
 import signal
 
@@ -8,10 +6,9 @@ from concurrent import futures
 
 from protos.autograder_pb2 import SubmissionRequest, SubmissionResponse, Status
 from protos.autograder_pb2_grpc import LoadBalancerServicer, AutograderStub, add_LoadBalancerServicer_to_server
+import grpc
 import asyncio
 from grpc import aio
-import grpc
-
 
 import utils
 
