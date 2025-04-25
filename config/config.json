@@ -7,22 +7,149 @@
         [
             "localhost",
             60001
+        ],
+        [
+            "localhost",
+            60002
         ]
     ],
     "tasks": {
         "1": {
+            "description": "Return the lowercased string.",
             "test_cases": [
                 [
-                    "A",
-                    "a"
+                    "4wMOGqPTTQwgiFmvbYSxHyBCpi1G6hYZFDLP6YsZvKwMNngQ2beGfWsNsyYd5GDPuDfuQ9khmjGPpmCdero34oImi2TMuNYGlpAG",
+                    "4wmogqpttqwgifmvbysxhybcpi1g6hyzfdlp6yszvkwmnngq2begfwsnsyyd5gdpudfuq9khmjgppmcdero34oimi2tmunyglpag"
                 ],
                 [
-                    "B",
-                    "b"
+                    "irhPhT4wXITrafVbK6sYknECNA30HffHTx0LWujcOQkIFfStgautHoJaMok3SFYrTcnO73g8Vd7C6krD52McOYxDNLwwz5cuIcTZ",
+                    "irhpht4wxitrafvbk6syknecna30hffhtx0lwujcoqkiffstgauthojamok3sfyrtcno73g8vd7c6krd52mcoyxdnlwwz5cuictz"
                 ],
                 [
-                    "C",
-                    "c"
+                    "aN75wWof0lxqhfT9I96nLy3ffojxnZPGdsAU9OHd2QhUsiuIE0ZcSKQxSuxQnH56bwVN5EDlEa9uLXbM8cfN6HF42HhPj0Gjz6lS",
+                    "an75wwof0lxqhft9i96nly3ffojxnzpgdsau9ohd2qhusiuie0zcskqxsuxqnh56bwvn5edlea9ulxbm8cfn6hf42hhpj0gjz6ls"
+                ],
+                [
+                    "7CI49KbtJBDALCdtiWIc18DlHZHjch8ki3ansy8tpBcZeeMVIPtI3Ebi81ORAuo87BXXorWJoPaAMaUtcvK2acSrK972wUGmL1As",
+                    "7ci49kbtjbdalcdtiwic18dlhzhjch8ki3ansy8tpbczeemvipti3ebi81orauo87bxxorwjopaamautcvk2acsrk972wugml1as"
+                ],
+                [
+                    "NTACkFKc6qJWPK5uTiEwoOdczvI2P706SUN1lZRQUhW3fNYxSSTCHiiepDsqARLioIzCVyKWnu7JvO5lR0Ki7zD66BE44fFUGYug",
+                    "ntackfkc6qjwpk5utiewoodczvi2p706sun1lzrquhw3fnyxsstchiiepdsqarlioizcvykwnu7jvo5lr0ki7zd66be44ffugyug"
+                ],
+                [
+                    "rfmQMxogYoxt8X2SqferZz5EgeGPYMK00uQyYpERtDmwrCjLS3eWeYM6sDmSUoZh0440PZP8xMruxoyKV4OiEERAW4HmjBlFCYlI",
+                    "rfmqmxogyoxt8x2sqferzz5egegpymk00uqyypertdmwrcjls3eweym6sdmsuozh0440pzp8xmruxoykv4oieeraw4hmjblfcyli"
+                ],
+                [
+                    "JiIDKLvaU8ekspEInk1brzrjz26F6a55qUUCfWcgo2B5myPrtPiuMfN6CSV683t7TwyaQIrxXMzgYbzPIMWm7bJSGJsMnxDK40AF",
+                    "jiidklvau8ekspeink1brzrjz26f6a55quucfwcgo2b5myprtpiumfn6csv683t7twyaqirxxmzgybzpimwm7bjsgjsmnxdk40af"
+                ],
+                [
+                    "WCcagthqNsHcrNgeEKCwiLKr6emiV9FwfhGy74q7NxmCIvD4D7X5N68bbP4BUWMJJ2uvnC9MYdhOyJaPci96BjW4uUhOpajVeChs",
+                    "wccagthqnshcrngeekcwilkr6emiv9fwfhgy74q7nxmcivd4d7x5n68bbp4buwmjj2uvnc9mydhoyjapci96bjw4uuhopajvechs"
+                ],
+                [
+                    "z4DFwLeZ89nd5fA70qg6yfUEQWvhenK8LBxuBTRJShoMrOnGvDit3lGFUAs6mKe0b9dqxpxhmqGjurmLoe3LETxNj6b56UvS96O9",
+                    "z4dfwlez89nd5fa70qg6yfueqwvhenk8lbxubtrjshomrongvdit3lgfuas6mke0b9dqxpxhmqgjurmloe3letxnj6b56uvs96o9"
+                ],
+                [
+                    "8hfiPPHlAUJner89wH2mjZieQ1JVrj2G7OQx93S6Ro10aj1dzQwnYJNfDhjAOrMMXlEmF3yDuoXZc9fUv4eJptVfZ0fBkbdsUlZf",
+                    "8hfipphlaujner89wh2mjzieq1jvrj2g7oqx93s6ro10aj1dzqwnyjnfdhjaormmxlemf3yduoxzc9fuv4ejptvfz0fbkbdsulzf"
+                ]
+            ]
+        },
+        "2": {
+            "description": "Return the sorted string.",
+            "test_cases": [
+                [
+                    "ij3ncYZdjuEm1sC13YtAhgwTA7JpyO1BzRivuqvqeQpEa5HBOauw0CBMSWboRjv4M1H64pDp9rjZWw5z917us3VPpCy54ZrCFDSb",
+                    "01111133344455567799AABBBCCCCDDEEFHHJMMOOPQRRSSTVWWYYZZZaabbcdeghiijjjjmnopppppqqrrsstuuuuvvvwwwyyzz"
+                ],
+                [
+                    "7GugtREw8IR2chrKPpaEriZ4dzhp95bNiOTyNpJoWnYn6GI6pZAcjfcaL1yeDaPk1lSXumkcYvwpV9NDljRG9Ti1vX3HwMAd6kSh",
+                    "111234566678999AADDEEGGGHIIJKLMNNNOPPRRRSSTTVWXXYYZZaaabccccddefghhhiiijjkkkllmnnoppppprrtuuvvwwwyyz"
+                ],
+                [
+                    "oXSVLk68nVWfIneBxYdGkdiLkkalucgTql2t8n0TQaytUTMZ1CeH0aUbDDjYgU1JmLuMt7XnBdde5CrSb9U8IyiZ7JlD4G95OJiH",
+                    "0011245567788899BBCCDDDGGHHIIJJJLLLMMOQSSTTTUUUUVVWXXYYZZaaabbcddddeeefggiiijkkkklllmnnnnoqrtttuuxyy"
+                ],
+                [
+                    "DdeLnbHuekh580HETglOu6uE9g0FOnAfpZHcoYlr5dBiHyH2TRhK0ayxVlW8AoVLlQZh8quQ1i2ByhHr4ED9b4Qk31je6oAv17e1",
+                    "0001111223445566788899AAABBDDEEEFHHHHHHKLLOOQQQRTTVVWYZZabbcddeeeefgghhhhiijkkllllnnooopqrruuuuvxyyy"
+                ],
+                [
+                    "mmlbdZ72fKCTElmtb7psRs3y4sxaTuxVGl5XCfkEo2MQGLg8IihRILkg2AtTfNvuxTnaEwMFNEPqZrKKAHOZOC29vhwSjZI8t36X",
+                    "22223345677889AACCCEEEEFGGHIIIKKKLLMMNNOOPQRRSTTTTVXXZZZZaabbdfffgghhijkklllmmmnopqrssstttuuvvwwxxxy"
+                ],
+                [
+                    "iXqVGijPcHX4i5znZhYXvM3XaZ3FShO2FlDw1G4omsOy12fNE1PSTBOQZvDWp282mwiIH75KHCvRJ5T1sEsx1Ldzt6IQeLOtXlUU",
+                    "1111122223344555678BCDDEEFFGGHHHIIJKLLMNOOOOPPQQRSSTTUUVWXXXXXYZZZacdefhhiiiijllmmnopqsssttvvvwwxyzz"
+                ],
+                [
+                    "gAaOqLhjAvUSFm2LFLcQaByhr7zIY9zqMJ5Fxg5nb4jX9dF16UldZ12YRrA4MMJMvLrhwrt834Mshv0Fx7HVxABsPmQJGW1ncn8w",
+                    "0111223444556778899AAAABBFFFFFGHIJJJLLLLMMMMMOPQQRSUUVWXYYZaabccddgghhhhjjlmmnnnqqrrrrsstvvvwwxxxyzz"
+                ],
+                [
+                    "eOwF2BtavdgSHB5oerjKhWZmC8QlP01ieYJwXUuf3H5bHZRP3CGEaonX8mVmzc7obyAlVY2KnI2WWqK9lgpxXUstNfaT7b6avE1P",
+                    "0112223355677889ABBCCEEFGHHHIJKKKNOPPPQRSTUUVVWWWXXXYYZZaaaabbbcdeeeffgghijlllmmmnnooopqrsttuvvwwxyz"
+                ],
+                [
+                    "HjyzJULroNxyGRz9ITQ2BLtjvgrzFU1M3LwXuZ2owE2UZyl56HU41LCgPUhK2lT4naMwBUXHfmwEPetgdYy8u1N8bjRLAhAYcfBc",
+                    "111222234456889AABBBCEEFGHHHIJKLLLLLMMNNPPQRRTTUUUUUUXXYYZZabccdeffggghhjjjllmnoorrttuuvwwwwxyyyyzzz"
+                ],
+                [
+                    "p0aRp3QRvIVtzeybFQ5Z8UaLJEuRHXsBv3bwaRwxydIcNMQKw0YM16DXf5E16y4oBh055LEkq246tw9JwliliMrBsKriGH0mI3OA",
+                    "000011233344555566689ABBBDEEEFGHHIIIJJKKLLMMMNOQQQRRRRUVXXYZaaabbcdefhiiikllmoppqrrssttuvvwwwwwxyyyz"
+                ]
+            ]
+        },
+        "3": {
+            "description": "Compute the length of the longest palindromic substring of a given string.",
+            "test_cases": [
+                [
+                    "KWfwxiMe0KpUB2jhWy9fVJOhltFiBJ470lqvcrMSvVYp7443UiZSRqYbHCa0jdS2l7cpQGzsVFditnsV4fkNfta6sPPheXyJuesh",
+                    "2"
+                ],
+                [
+                    "1UahKLfC6IHnPEeIL2UDhs6bFqgRCiSJbeFIzUePDjk1kIw29sY1oZTic8hgykvBWOAO5Lmnjnjl3Yspp1Zd407nLtanZhhAJq5l",
+                    "3"
+                ],
+                [
+                    "qTbgAnD1gsr0ODo0FJqqYCqlTdtglKlL9JaeVJa3WRqOPW1yhHc7cvvlR97hcgqqzRkDT0k1t40bxiljOmj9DJjqtmUXN5102W00",
+                    "3"
+                ],
+                [
+                    "dyUpBHj9f2UVABBryvmw3i3zUxzM5PPqmtJ9U7idoKnCYKw88tFH1FERqmydrX3WuvAp31AcMYYibpO7XzzW3Pub7ayYibNNZ9FW",
+                    "3"
+                ],
+                [
+                    "xfIXmpyCMn9dWzeNW3Zbv6E8MhXEB3beOq2DeAKh9WpY9Gl8Qn6Jasn0q0MD8T7CmBS6Glypf51e6MnirKpZzUUJ7XVRQ4fUJfxm",
+                    "3"
+                ],
+                [
+                    "7N3AtKiSGhikOMi9PnsQeuFviYluymXT8POBRrnwIlxi9iMuuiDpzT11UDHUUNWECgI0opkputVqILUfzmw9lUEG72PEke3WDzkx",
+                    "3"
+                ],
+                [
+                    "hWhC8ic4ge2xzhTIrXT9jOX5f8xUi6JxCCJWW6mQHbeaoKo45llVEgGT0jSoPmuxbS4QdxSkuJF2sVc4PRWVBWS7JdbPE0EwvlOM",
+                    "3"
+                ],
+                [
+                    "OZ0fLfRLwxrujgBQgoTlCXPuKUhR892P4dhzIC2VKuoEE5oUQc6vrTTzqGsJoRMckbpHq9SKTgIL5ssi6FwZhv3mYf9tKHkphF6K",
+                    "3"
+                ],
+                [
+                    "Ccq7nH347hGr18d8yRgxy3A9ofNjQVSVNMAHMudH5ewt7vUJ1js18BUUl40h9azY5rIW0GkkBuRaXLtuzdtVGy6GEVjOt2zOqn5D",
+                    "3"
+                ],
+                [
+                    "d761N0OlPEIQHS6qfaSpQihXsSIIrcNd86UecQK2NEMaBkKryjyuOLGHJD8MDVy614SYhsizs6CJ6egZtqGDX57ZwjSsOcV7w1Nq",
+                    "3"
+                ],
+                [
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "100"
                 ]
             ]
         }

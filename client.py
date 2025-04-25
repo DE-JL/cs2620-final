@@ -25,13 +25,11 @@ def submit(task_id: int, source_code: str):
 
 
 def main():
-    task_id = 1
-    code = """
-    s = input()
-    print(s.lower())
-    """
+    task_id = 3
+    with open("test_bank/palindromic_substring.py", "r") as f:
+        code = f.read()
 
-    num_threads = 500
+    num_threads = 1
     threads = []
     for i in range(num_threads):
         t = threading.Thread(target=submit, args=(task_id, code))
