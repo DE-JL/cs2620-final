@@ -20,7 +20,6 @@ message SubmissionResponse {
     string output = 2;
 }
 
-/* Response status */
 enum Status {
     OK = 0;
     ERROR = 1;

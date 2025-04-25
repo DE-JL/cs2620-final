@@ -1,0 +1,189 @@
+# CS 2620: Serverless Platform
+
+> [!NOTE]
+> **Authors:** Daniel Li, Rajiv Swamy
+>
+> **Date:** 4/30/25
+
+## Usage Instructions
+
+This app consists of three parts: the load balancer, the autograders, and the client.
+
+### Configuration
+
+The configuration file stores the IPs and ports of the load balancer and autograders.
+The format is specified below.
+
+```json
+{
+    "load_balancer": [
+        "localhost",
+        60000
+    ],
+    "autograders": [
+        [
+            "localhost",
+            60001
+        ],
+        ...
+    ],
+    ...
+}
+```
+
+### Running the App
+
+1. Start the load balancer.
+    ```shell
+    python load_balancer.py
+    ```
+2. Start the autograder(s).
+    ```shell
+    python load_balancer.py --ip IP --port PORT
+    ```
+3. Start the client.
+    ```shell
+    python client.py
+    ```
+
+## Communication Layer
+
+For the RPC, we decided to use Google’s gRPC framework with Protocol Buffers (protobuf) as the IDL. This was primarily
+because Python applications written with gRPC and protobuf are well-documented and easy to learn.
+
+### Protocol Buffers Compilation
+
+To generate the Python code, we can compile our `chat.proto` file as follows:
+
+```
+python -m grpc_tools.protoc \
+   -I=. \
+   --python_out=. \
+   --pyi_out=. \
+   --grpc_python_out=. \
+   protos/autograder.proto
+```
+
+### Structures
+
+The clients, load balancer, and autograders will all communicate with the following structures.
+
+```protobuf
+message SubmissionRequest {
+    int32 task_id = 1;
+    string source_code = 2;
+}
+
+message SubmissionResponse {
+    Status status = 1;
+    string output = 2;
+}
+
+enum Status {
+    OK = 0;
+    ERROR = 1;
+}
+```
+
+## App Semantics
+
+The task bank is baked into the configuration file.
+The general format looks as follows.
+
+```json
+{
+    ...
+    "tasks": {
+        "1": {
+            "test_cases": [
+                [
+                    "{input1}",
+                    "{output1}"
+                ],
+                ...
+            ]
+        }
+    }
+}
+```
+
+### Client Submission Format
+
+```python
+def submit(task_id: int, source_code: str):
+    # Connect to the server
+    load_balancer_address: tuple[str, int] = config["load_balancer"]
+    ip, port = load_balancer_address
+
+    with grpc.insecure_channel(f"{ip}:{port}") as channel:
+        print("Client connected to load balancer")
+        stub = LoadBalancerStub(channel)
+
+        # Create a submission message
+        req = SubmissionRequest(task_id=task_id,
+                                source_code=source_code)
+
+        # Send the request and get the response
+        response: SubmissionResponse = stub.Submit(req)
+        print(response)
+```
+
+### Scaling Up
+
+For scaling up, we check if all autograders have more than `SCALE_UP_THRESHOLD`.
+If so, we initialize a new worker.
+
+```python
+async def Grade(self, request: SubmissionRequest, context: aio.ServicerContext) -> SubmissionResponse:
+    # Check if we need to scale up
+    job = Job(request)
+    if all(worker.queue.qsize() >= Autograder.SCALE_UP_THRESHOLD for worker in self.workers):
+        worker = Worker()
+        self.workers.append(Worker())
+        worker.queue.put(job)
+    else:
+        # Give it to the least busy worker
+        worker = min(self.workers, key=lambda w: w.queue.qsize())
+        worker.queue.put(job)
+
+    ...
+```
+
+### Scaling Down
+
+The idea is simple: if the proportion of idle workers is more than `SCALE_DOWN_PERCENTAGE`,
+we remove one of the workers.
+
+```python
+def scale(self):
+    while not shutdown:
+        # Scale down if more than 25% are idle and we have more than MIN_WORKERS
+        if len(self.workers) > Autograder.MIN_WORKERS:
+            idle_workers = [w for w in self.workers if w.queue.qsize() == 0]
+            idle_ratio = len(idle_workers) / len(self.workers)
+
+            if idle_ratio > Autograder.SCALE_DOWN_PERCENTAGE:
+                worker_to_remove = idle_workers[0]
+                worker_to_remove.stop()
+                self.workers.remove(worker_to_remove)
+
+        # Log and sleep
+        self.log()
+        time.sleep(Autograder.SCALE_INTERVAL)
+```
+
+## Testing
+
+All test cases are provided in one test suite.
+This file builds on the integration test from the previous assignment.
+
+To run the tests:
+
+1. Open a terminal and activate the virtual environment: `source venv/bin/activate`.
+2. Run the tests: `pytest tests`.
+
+#### Main Test Suite
+
+The main test suite is described in `notebook.md`.
+Essentially, it tests all the API endpoints (the core functionality of the chat application) are functional.
+It also tests common edge cases.
