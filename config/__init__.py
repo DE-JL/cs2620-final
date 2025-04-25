@@ -1,16 +1,9 @@
-import yaml
-import importlib.resources
+import json
+import os
 
-config_path = importlib.resources.files(__package__) / "config.yaml"
+# Set the gRPC verbosity
+os.environ["GRPC_VERBOSITY"] = "ERROR"
 
-
-with config_path.open() as f:
-    config = yaml.safe_load(f)
-
-DEBUG = config["debug"]
-NETWOK = config["network"]
-LOAD_BALANCER = config["load_balancer"]
-MACHINES_LOCAL = config["machines_local"]
-MACHINES_PUBLIC = config["machines_public"]
-
-__all__ = ["DEBUG", "NETWORK", "LOAD_BALANCER", "MACHINES_LOCAL", "MACHINES_PUBLIC"]
+_config_path = os.path.join(os.path.dirname(__file__), "config.json")
+with open(_config_path, "r") as f:
+    config: dict = json.load(f)

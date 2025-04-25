@@ -1,0 +1,30 @@
+{
+    "load_balancer": [
+        "localhost",
+        60000
+    ],
+    "autograders": [
+        [
+            "localhost",
+            60001
+        ]
+    ],
+    "tasks": {
+        "1": {
+            "test_cases": [
+                [
+                    "A",
+                    "a"
+                ],
+                [
+                    "B",
+                    "b"
+                ],
+                [
+                    "C",
+                    "c"
+                ]
+            ]
+        }
+    }
+}

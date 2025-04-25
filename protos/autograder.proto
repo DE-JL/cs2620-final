@@ -3,7 +3,7 @@ syntax = "proto3";
 package Autograder;
 
 service Autograder {
-    rpc Submit(SubmissionRequest) returns (SubmissionResponse) {}
+    rpc Grade(SubmissionRequest) returns (SubmissionResponse) {}
 }
 
 service LoadBalancer {
@@ -22,6 +22,6 @@ message SubmissionResponse {
 
 /* Response status */
 enum Status {
-    SUCCESS = 0;
+    OK = 0;
     ERROR = 1;
 }
