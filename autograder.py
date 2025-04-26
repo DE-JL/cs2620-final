@@ -11,6 +11,7 @@ import time
 
 from collections import deque
 from matplotlib import pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 # Need to import config before gRPC
 from job import Job
@@ -23,9 +24,9 @@ from protos.autograder_pb2_grpc import AutograderServicer, add_AutograderService
 class Autograder(AutograderServicer):
     MIN_WORKERS = 5
     SCALE_INTERVAL = 0.5
-    SCALE_UP_THRESHOLD = 5
+    SCALE_UP_THRESHOLD = 4
     MAX_IDLE_RATIO = 0.2
-    WINDOW_SIZE = 100
+    WINDOW_SIZE = 50
 
     def __init__(self, server_id: str):
         self.server_id = server_id
@@ -147,45 +148,43 @@ def render_plots(df: pd.DataFrame, filename: str):
                            sharex=True,
                            constrained_layout=True)
 
-    # Timestamps
-    ts = pd.to_datetime(df["ts"], unit="s")
-    print(len(ts))
+    t0 = df["ts"].iloc[0]
+    elapsed = df["ts"] - t0
 
-    # Worker count
-    ax[0].plot(ts, df["workers"])
-    ax[0].set_ylabel("Worker Count")
+    ax[0].plot(elapsed, df["workers"])
+    ax[0].set_ylabel("Worker count")
     ax[0].set_ylim(bottom=0)
 
-    # Saturation level
-    ax[1].plot(ts, df["saturation"])
-    ax[1].set_ylabel("Avg queue saturation")
+    ax[1].plot(elapsed, df["saturation"])
+    ax[1].set_ylabel("Average saturation")
     ax[1].set_ylim(0, 1)
 
-    # CPU usage
-    ax[2].plot(ts, df["cpu"])
-    ax[2].set_ylabel("CPU utilization %")
+    ax[2].plot(elapsed, df["cpu"])
+    ax[2].set_ylabel("CPU Utilization %")
     ax[2].set_ylim(bottom=0)
 
-    # Memory usage
-    ax[3].plot(ts, df["rss"])
-    ax[3].set_ylabel("MB RSS")
+    ax[3].plot(elapsed, df["rss"])
+    ax[3].set_ylabel("Memory usage (MB)")
 
-    # Queueing and execution latencies
-    ax[4].plot(ts, df["q50"], label="queue p50")
-    ax[4].plot(ts, df["q95"], label="queue p95")
-    ax[4].plot(ts, df["q99"], label="queue p99")
-
-    ax[4].plot(ts, df["e50"], label="exec p50")
-    ax[4].plot(ts, df["e95"], label="exec p95")
-    ax[4].plot(ts, df["e99"], label="exec p99")
+    ax[4].plot(elapsed, df["q50"], label="queue p50")
+    ax[4].plot(elapsed, df["q95"], label="queue p95")
+    ax[4].plot(elapsed, df["q99"], label="queue p99")
+    ax[4].plot(elapsed, df["e50"], label="exec p50")
+    ax[4].plot(elapsed, df["e95"], label="exec p95")
+    ax[4].plot(elapsed, df["e99"], label="exec p99")
 
     ax[4].set_ylabel("seconds")
     ax[4].set_ylim(bottom=0)
-    ax[4].legend(ncol=3)
-    ax[4].set_xlabel("Time")
+    ax[4].legend(ncol=3, fontsize="small")
+    ax[4].set_xlabel("Elapsed time (mm:ss)")
 
-    # Keep tick marks but hide their numeric labels
+    # ── nice mm:ss tick labels on *all* axes -------------------------------
+    fmt = FuncFormatter(lambda x, _pos: f"{int(x // 60):02d}:{int(x % 60):02d}")
     for a in ax:
+        a.xaxis.set_major_formatter(fmt)
+
+    # hide tick-number text on the upper four panels
+    for a in ax[:-1]:
         a.tick_params(labelbottom=False)
 
     plt.savefig(filename, dpi=120)

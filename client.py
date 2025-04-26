@@ -8,8 +8,8 @@ from config import config
 from protos.autograder_pb2 import SubmissionRequest, SubmissionResponse
 from protos.autograder_pb2_grpc import LoadBalancerStub
 
-MIN_DELAY = 15.0
-MAX_DELAY = 20.0
+MIN_DELAY = 7.5
+MAX_DELAY = 12.5
 
 MIN_BURST = 40
 MAX_BURST = 200
@@ -48,9 +48,9 @@ def burst(executor: ThreadPoolExecutor, n: int) -> None:
 
 def main():
     executor = ThreadPoolExecutor(max_workers=MAX_BURST)
+    n_vals = [50, 100, 75, 45, 35, 35, 35, 35]
     try:
-        for i in range(1, 3):
-            n = random.randint(MIN_BURST, MAX_BURST)
+        for i, n in enumerate(n_vals):
             print(f"Burst #{i}: {n} requests")
             burst(executor, n)
             time.sleep(random.uniform(MIN_DELAY, MAX_DELAY))
