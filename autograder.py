@@ -1,10 +1,16 @@
 import argparse
 import asyncio
 import logging
+import numpy as np
 import os
+import pandas as pd
+import psutil
 import queue
 import threading
 import time
+
+from collections import deque
+from matplotlib import pyplot as plt
 
 # Need to import config before gRPC
 from job import Job
@@ -18,9 +24,12 @@ class Autograder(AutograderServicer):
     MIN_WORKERS = 5
     SCALE_INTERVAL = 0.5
     SCALE_UP_THRESHOLD = 5
-    SCALE_DOWN_PERCENTAGE = 0.2
+    MAX_IDLE_RATIO = 0.2
+    WINDOW_SIZE = 100
 
     def __init__(self, server_id: str):
+        self.server_id = server_id
+
         # Ensure the logs/ directory exists
         os.makedirs("logs", exist_ok=True)
 
@@ -37,13 +46,18 @@ class Autograder(AutograderServicer):
         self.shutdown_event = threading.Event()
         self.lock = threading.Lock()
 
-        # Latency trackers
-        self.queueing_latency_tracker = EWMA()
-        self.execution_latency_tracker = EWMA()
+        # Stats trackers
+        self.proc = psutil.Process()
+        self.rows = deque()
+        self.latencies = deque(maxlen=Autograder.WINDOW_SIZE)
 
         # Autoscaler thread
         self.scaler_thread = threading.Thread(target=self.scale, daemon=True)
         self.scaler_thread.start()
+
+        # Stat recorder thread
+        self.stats_thread = threading.Thread(target=self.record_stats, daemon=True)
+        self.stats_thread.start()
 
     def stop(self):
         self.shutdown_event.set()
@@ -52,13 +66,21 @@ class Autograder(AutograderServicer):
         for worker in self.workers:
             worker.stop()
 
+        # Generate a plot
+        df = pd.DataFrame(list(self.rows),
+                          columns=[
+                              "ts", "workers", "saturation", "cpu", "rss",
+                              "q50", "q95", "q99", "e50", "e95", "e99"
+                          ])
+        render_plots(df, f"logs/autograder_{self.server_id}_stats.png")
+
     async def Grade(self, request: SubmissionRequest, context: aio.ServicerContext) -> SubmissionResponse:
         with self.lock:
             # Check if we need to scale up
             job = Job(request)
             if all(worker.queue.qsize() >= Autograder.SCALE_UP_THRESHOLD for worker in self.workers):
                 worker = Worker()
-                self.workers.append(Worker())
+                self.workers.append(worker)
                 worker.queue.put(job)
             else:
                 # Give it to the least busy worker
@@ -67,10 +89,7 @@ class Autograder(AutograderServicer):
 
         # Wait asynchronously for the result
         result: SubmissionResponse = await job.future
-
-        # Track latencies
-        self.queueing_latency_tracker.add(job.get_queued_time())
-        self.execution_latency_tracker.add(job.get_execution_time())
+        self.latencies.append((job.get_queued_time(), job.get_execution_time()))
 
         return result
 
@@ -82,30 +101,95 @@ class Autograder(AutograderServicer):
                     idle_workers = [w for w in self.workers if w.queue.qsize() == 0]
                     idle_ratio = len(idle_workers) / len(self.workers)
 
-                    if idle_ratio > Autograder.SCALE_DOWN_PERCENTAGE:
+                    if idle_ratio > Autograder.MAX_IDLE_RATIO:
                         worker_to_remove = idle_workers[0]
                         worker_to_remove.stop()
                         self.workers.remove(worker_to_remove)
 
             # Log and sleep
-            self.log()
             time.sleep(Autograder.SCALE_INTERVAL)
 
-    def log(self):
-        # Calculate the average saturation
-        saturation_levels = [w.queue.qsize() / Autograder.SCALE_UP_THRESHOLD for w in self.workers]
-        avg_saturation = sum(saturation_levels) / len(self.workers)
+    def record_stats(self):
+        while not self.shutdown_event.is_set():
+            # Compute saturation levels
+            saturation_levels = [w.queue.qsize() / Autograder.SCALE_UP_THRESHOLD for w in self.workers]
+            avg_saturation = sum(saturation_levels) / len(self.workers)
 
-        # Calculate the latencies
-        avg_queueing_latency = self.queueing_latency_tracker.get()
-        avg_execution_latency = self.execution_latency_tracker.get()
+            # Compute latency percentiles
+            if self.latencies:
+                lat = np.array(self.latencies)
+                q50, q95, q99 = np.percentile(lat[:, 0], (50, 95, 99))
+                e50, e95, e99 = np.percentile(lat[:, 1], (50, 95, 99))
+            else:
+                q50 = q95 = q99 = e50 = e95 = e99 = 0.0
 
-        # Log information
-        self.logger.info(f"\n[Stats]\n"
-                         f"\tWorker count          : {len(self.workers)}\n"
-                         f"\tAvg queue saturation  : {avg_saturation:.2f}\n"
-                         f"\tAvg queueing latency  : {avg_queueing_latency:.2f} s\n"
-                         f"\tAvg execution latency : {avg_execution_latency:.2f} s\n")
+            # psutil.Process.cpu_percent() can exceed 100 on multicore boxes.
+            # Divide by cpu_count() to normalise to 0-100 % of the whole machine.
+            # Correct 0–1 normalization
+            # cores = psutil.cpu_count(logical=True)
+            cpu_usage = self.proc.cpu_percent()
+
+            # Memory usage
+            memory_usage = self.proc.memory_info().rss / 1_048_576
+
+            self.rows.append((time.time(),
+                              len(self.workers),
+                              avg_saturation,
+                              cpu_usage,
+                              memory_usage,
+                              q50, q95, q99, e50, e95, e99))
+            time.sleep(0.5)
+
+
+def render_plots(df: pd.DataFrame, filename: str):
+    fig, ax = plt.subplots(5, 1,
+                           figsize=(10, 9),
+                           sharex=True,
+                           constrained_layout=True)
+
+    # Timestamps
+    ts = pd.to_datetime(df["ts"], unit="s")
+    print(len(ts))
+
+    # Worker count
+    ax[0].plot(ts, df["workers"])
+    ax[0].set_ylabel("Worker Count")
+    ax[0].set_ylim(bottom=0)
+
+    # Saturation level
+    ax[1].plot(ts, df["saturation"])
+    ax[1].set_ylabel("Avg queue saturation")
+    ax[1].set_ylim(0, 1)
+
+    # CPU usage
+    ax[2].plot(ts, df["cpu"])
+    ax[2].set_ylabel("CPU utilization %")
+    ax[2].set_ylim(bottom=0)
+
+    # Memory usage
+    ax[3].plot(ts, df["rss"])
+    ax[3].set_ylabel("MB RSS")
+
+    # Queueing and execution latencies
+    ax[4].plot(ts, df["q50"], label="queue p50")
+    ax[4].plot(ts, df["q95"], label="queue p95")
+    ax[4].plot(ts, df["q99"], label="queue p99")
+
+    ax[4].plot(ts, df["e50"], label="exec p50")
+    ax[4].plot(ts, df["e95"], label="exec p95")
+    ax[4].plot(ts, df["e99"], label="exec p99")
+
+    ax[4].set_ylabel("seconds")
+    ax[4].set_ylim(bottom=0)
+    ax[4].legend(ncol=3)
+    ax[4].set_xlabel("Time")
+
+    # Keep tick marks but hide their numeric labels
+    for a in ax:
+        a.tick_params(labelbottom=False)
+
+    plt.savefig(filename, dpi=120)
+    plt.close(fig)
 
 
 class Worker:
@@ -128,21 +212,6 @@ class Worker:
                 job.run()
             except queue.Empty:
                 continue
-
-
-class EWMA:
-    def __init__(self, alpha: float = 0.2):
-        self.lock = threading.Lock()
-        self.alpha = alpha
-        self.avg = 0
-
-    def add(self, value: float):
-        with self.lock:
-            self.avg = self.alpha * value + (1 - self.alpha) * self.avg
-
-    def get(self) -> float:
-        with self.lock:
-            return self.avg
 
 
 async def serve(ip: str, port: int):

@@ -1,4 +1,6 @@
 grpcio~=1.71.0
-grpcio-tools~=1.71.0
+matplotlib~=3.10.1
+numpy~=2.2.5
+pandas~=2.2.3
 protobuf~=5.29.3
-pytest~=8.3.4
+psutil~=7.0.0
