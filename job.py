@@ -51,10 +51,13 @@ def run_submission(submission: SubmissionRequest) -> SubmissionResponse:
             return result
 
     return SubmissionResponse(status=Status.OK,
-                            output="All test cases passed.")
+                              output="All test cases passed.")
 
 
-def run_test_case(code: str, input_data: str, exp: str, idx: int) -> SubmissionResponse | None:
+def run_test_case(code: str,
+                  input_data: str,
+                  exp: str,
+                  idx: int) -> SubmissionResponse | None:
     try:
         result = subprocess.run(["python3", "-c", textwrap.dedent(code)],
                                 input=input_data.encode(),
@@ -65,13 +68,13 @@ def run_test_case(code: str, input_data: str, exp: str, idx: int) -> SubmissionR
 
         if output != exp.strip():
             return SubmissionResponse(status=Status.ERROR,
-                                    output=f"Incorrect output for test case {idx + 1}! "
-                                           f"Expected: {exp}, Got: {output}")
+                                      output=f"Incorrect output for test case {idx + 1}! "
+                                             f"Expected: {exp}, Got: {output}")
         return None
 
     except subprocess.TimeoutExpired:
         return SubmissionResponse(status=Status.ERROR,
-                                output=f"Timed out on test case {idx + 1}")
+                                  output=f"Timed out on test case {idx + 1}")
     except Exception as e:
         return SubmissionResponse(status=Status.ERROR,
-                                output=f"Execution failed: {e}")
+                                  output=f"Execution failed: {e}")

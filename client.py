@@ -5,7 +5,7 @@ from concurrent.futures import ALL_COMPLETED, CancelledError, ThreadPoolExecutor
 from concurrent.futures import wait
 
 from config import config
-from protos.autograder_pb2 import SubmissionRequest, SubmissionResponse
+from protos.autograder_pb2 import SubmissionRequest, SubmissionResponse, Status
 from protos.autograder_pb2_grpc import LoadBalancerStub
 
 MIN_DELAY = 7.5
@@ -31,9 +31,10 @@ def send_submission(task_id: int, source_code: str) -> None:
         req = SubmissionRequest(task_id=task_id, source_code=source_code)
         try:
             resp: SubmissionResponse = stub.Submit(req)
-            print(resp)
+            assert resp.status == Status.OK, f"Unexpected status: {resp.status}"
         except (grpc.RpcError, CancelledError) as e:
             print(e)
+            exit(1)
 
 
 def burst(executor: ThreadPoolExecutor, n: int) -> None:
